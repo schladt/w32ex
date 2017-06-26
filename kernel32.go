@@ -15,7 +15,7 @@ type SYSTEMTIME syscall.Systemtime
 // BOOL WINAPI SystemTimeToFileTime
 //   _In_  const SYSTEMTIME *lpSystemTime,
 //   _Out_       LPFILETIME lpFileTime
-func SystemTimeToFileTime(inputSystemTime *SYSTEMTIME) (FILETIME, error) {
+func SystemTimeToFileTime(inputSystemTime SYSTEMTIME) (FILETIME, error) {
 
 	var outputFileTime FILETIME
 	var err error
@@ -23,7 +23,7 @@ func SystemTimeToFileTime(inputSystemTime *SYSTEMTIME) (FILETIME, error) {
 	libkernel32, _ := syscall.LoadLibrary("kernel32.dll")
 	sytemTimeToFileTime, _ := syscall.GetProcAddress(libkernel32, "SystemTimeToFileTime")
 	ret, _, _ := syscall.Syscall(sytemTimeToFileTime, 2,
-		uintptr(unsafe.Pointer(inputSystemTime)),
+		uintptr(unsafe.Pointer(&inputSystemTime)),
 		uintptr(unsafe.Pointer(&outputFileTime)),
 		0)
 
@@ -36,7 +36,7 @@ func SystemTimeToFileTime(inputSystemTime *SYSTEMTIME) (FILETIME, error) {
 // BOOL WINAPI FileTimeToSystemTime
 //   _In_  const FILETIME     *lpFileTime,
 //   _Out_       LPSYSTEMTIME lpSystemTime
-func FileTimeToSystemTime(inputFileTime *FILETIME) (SYSTEMTIME, error) {
+func FileTimeToSystemTime(inputFileTime FILETIME) (SYSTEMTIME, error) {
 
 	var outputSystemTime SYSTEMTIME
 	var err error
@@ -44,7 +44,7 @@ func FileTimeToSystemTime(inputFileTime *FILETIME) (SYSTEMTIME, error) {
 	libkernel32, _ := syscall.LoadLibrary("kernel32.dll")
 	fileTimeToSystemTime, _ := syscall.GetProcAddress(libkernel32, "FileTimeToSystemTime")
 	ret, _, _ := syscall.Syscall(fileTimeToSystemTime, 2,
-		uintptr(unsafe.Pointer(inputFileTime)),
+		uintptr(unsafe.Pointer(&inputFileTime)),
 		uintptr(unsafe.Pointer(&outputSystemTime)),
 		0)
 
@@ -57,12 +57,12 @@ func FileTimeToSystemTime(inputFileTime *FILETIME) (SYSTEMTIME, error) {
 // LONG WINAPI CompareFileTime
 //   _In_ const FILETIME *lpFileTime1,
 //   _In_ const FILETIME *lpFileTime2
-func CompareFileTime(t1 *FILETIME, t2 *FILETIME) int {
+func CompareFileTime(t1 FILETIME, t2 FILETIME) int {
 	libkernel32, _ := syscall.LoadLibrary("kernel32.dll")
 	fileTimeToSystemTime, _ := syscall.GetProcAddress(libkernel32, "CompareFileTime")
 	ret, _, _ := syscall.Syscall(fileTimeToSystemTime, 2,
-		uintptr(unsafe.Pointer(t1)),
-		uintptr(unsafe.Pointer(t2)),
+		uintptr(unsafe.Pointer(&t1)),
+		uintptr(unsafe.Pointer(&t2)),
 		0)
 
 	return int(int16(ret))
