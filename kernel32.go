@@ -5,6 +5,7 @@ package w32ex
 import (
 	"errors"
 	"syscall"
+	"time"
 	"unsafe"
 )
 
@@ -77,6 +78,21 @@ func GetSystemTime() SYSTEMTIME {
 		uintptr(unsafe.Pointer(&systemTime)),
 		0,
 		0)
+
+	return systemTime
+}
+
+//Helper function convert a Go time to System time
+func GoTimeToSystemTime(goTime time.Time) SYSTEMTIME {
+	var systemTime SYSTEMTIME
+	systemTime.Day = uint16(goTime.Day())
+	systemTime.Hour = uint16(goTime.Hour())
+	systemTime.DayOfWeek = uint16(goTime.Weekday())
+	systemTime.Milliseconds = uint16(goTime.Nanosecond() / 1000 / 1000)
+	systemTime.Minute = uint16(goTime.Minute())
+	systemTime.Month = uint16(goTime.Month())
+	systemTime.Second = uint16(goTime.Second())
+	systemTime.Year = uint16(goTime.Year())
 
 	return systemTime
 }
