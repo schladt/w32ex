@@ -11,6 +11,14 @@ import (
 
 type FILETIME syscall.Filetime
 type SYSTEMTIME syscall.Systemtime
+type OSVERSIONINFO struct {
+	DwOSVersionInfoSize int32
+	DwMajorVersion      int32
+	DwMinorVersion      int32
+	DwBuildNumber       int32
+	DwPlatformId        int32
+	SzCSDVersion        [128]byte
+}
 
 // BOOL WINAPI SystemTimeToFileTime
 //   _In_  const SYSTEMTIME *lpSystemTime,
@@ -80,6 +88,16 @@ func GetSystemTime() SYSTEMTIME {
 		0)
 
 	return systemTime
+}
+
+// BOOL WINAPI GetVersionEx(
+//   _Inout_ LPOSVERSIONINFO lpVersionInfo
+func GetVersionEx(osversion *OSVERSIONINFO) bool {
+	osversion.DwOSVersionInfoSize = int32(unsafe.Sizeof(*osversion))
+	libkernel32, _ := syscall.LoadLibrary("kernel32.dll")
+	getVersionExA, _ := syscall.GetProcAddress(libkernel32, "GetVersionExA")
+	rt, _, _ := syscall.Syscall(getVersionExA, 1, uintptr(unsafe.Pointer(osversion)), 0, 0)
+	return rt == 1
 }
 
 //Helper function convert a Go time to System time
