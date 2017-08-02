@@ -9,6 +9,17 @@ import (
 	"unsafe"
 )
 
+const (
+	ABOVE_NORMAL_PRIORITY_CLASS   = 0x00008000
+	BELOW_NORMAL_PRIORITY_CLASS   = 0x00004000
+	HIGH_PRIORITY_CLASS           = 0x00000080
+	IDLE_PRIORITY_CLASS           = 0x00000040
+	NORMAL_PRIORITY_CLASS         = 0x00000020
+	PROCESS_MODE_BACKGROUND_BEGIN = 0x00100000
+	PROCESS_MODE_BACKGROUND_END   = 0x00200000
+	REALTIME_PRIORITY_CLASS       = 0x00000100
+)
+
 type FILETIME syscall.Filetime
 type SYSTEMTIME syscall.Systemtime
 type OSVERSIONINFO struct {
@@ -98,6 +109,19 @@ func GetVersionEx(osversion *OSVERSIONINFO) bool {
 	getVersionExA, _ := syscall.GetProcAddress(libkernel32, "GetVersionExA")
 	rt, _, _ := syscall.Syscall(getVersionExA, 1, uintptr(unsafe.Pointer(osversion)), 0, 0)
 	return rt == 1
+}
+
+// BOOL WINAPI SetPriorityClass
+//   _In_ HANDLE hProcess,
+//   _In_ DWORD  dwPriorityClass
+func SetPriorityClass(hProcess syscall.Handle, dwPriorityClass uint32) bool {
+	libkernel32, _ := syscall.LoadLibrary("kernel32.dll")
+	setPriorityClass, _ := syscall.GetProcAddress(libkernel32, "SetPriorityClass")
+	ret, _, _ := syscall.Syscall(setPriorityClass, 2,
+		uintptr(hProcess),
+		uintptr(dwPriorityClass),
+		0)
+	return ret == 1
 }
 
 //Helper function convert a Go time to System time
