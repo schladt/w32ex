@@ -32,7 +32,7 @@ type OSVERSIONINFO struct {
 }
 
 // BOOL WINAPI SystemTimeToFileTime
-//   _In_  const SYSTEMTIME *lpSystemTime,
+//   _In_  const SYSTEMTIME *lpSystemTime
 //   _Out_       LPFILETIME lpFileTime
 func SystemTimeToFileTime(inputSystemTime SYSTEMTIME) (FILETIME, error) {
 
